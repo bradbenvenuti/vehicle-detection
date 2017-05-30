@@ -1,4 +1,4 @@
-**Vehicle Detection Project**
+# **Vehicle Detection Project**
 
 The goals / steps of this project are the following:
 
@@ -40,18 +40,18 @@ The goals / steps of this project are the following:
 [video1]: ./project_video.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
-###Here I will consider the rubric points individually and describe how I addressed each point in my implementation.
+### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.
 
 ---
-###Writeup / README
+### Writeup / README
 
-####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.
+#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.
 
 You're reading it!
 
-###Histogram of Oriented Gradients (HOG)
+### Histogram of Oriented Gradients (HOG)
 
-####1. Explain how (and identify where in your code) you extracted HOG features from the training images.
+#### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
 The code for this step is contained in './project.py' (lines #33 through #72 in the function 'prepare_data').
 
@@ -71,7 +71,7 @@ Car
 Not Car
 ![alt text][image4]
 
-####2. Explain how you settled on your final choice of HOG parameters.
+#### 2. Explain how you settled on your final choice of HOG parameters.
 
 I tried various combinations of parameters and found that the classifier performed best using the following parameters:
 
@@ -83,13 +83,13 @@ I tried various combinations of parameters and found that the classifier perform
 
 I based the performance of the parameters on the accuracy of classifying images in the test set, which was about 98 percent. I also continually checked against the test images and video.
 
-####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
+#### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
 I trained a linear SVM using HOG features (using all color channels) as well as a histogram of color channels and a spatial function with size 16x16. The code related to the classifier can be found in './lib/classifier.py'. The code for extracting features can be found in './lib/features.py'.
 
-###Sliding Window Search
+### Sliding Window Search
 
-####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
+#### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
 I tried many different parameters for the sliding window search. I used the find_cars function from the lessons to perform the search, but I ran it in many different sections and scales on the image.
 
@@ -104,7 +104,7 @@ Here are some examples of the windows/scales searched:
 ![alt text][image7]
 ![alt text][image8]
 
-####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
+#### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
 Ultimately I searched on 4 scales using YUV 3-channel HOG, which provided a nice result. I tried many different parameters for the feature extraction and HOG function, but found these parameters worked best with my pipeline. In order to increase the performance of the classifier I used the decision_function to adjust the activation threshold. This helped to eliminate false positives. I also adjusted the "C" value to 0.001 to reduce overfitting.
 
@@ -116,11 +116,11 @@ Here is an example images:
 
 ### Video Implementation
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
 Here's a [link to my video result](./out.mp4)
 
 
-####2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
+#### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
 I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.
 
@@ -144,9 +144,9 @@ To further eliminate false positives, I stored the car detections from the previ
 
 ---
 
-###Discussion
+### Discussion
 
-####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
+#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 I found it to be difficult to find the appropriate method to extract features for the classifier. I tried many different parameters for the HOG function and eventually seemed to find something that worked, but it does seem to give a lot of false positives.
 
