@@ -5,7 +5,7 @@ from sklearn.svm import LinearSVC
 
 def fit_classifier(X_train, y_train):
 	# Use a linear SVC
-	svc = LinearSVC()
+	svc = LinearSVC(C=0.001)
 	# Check the training time for the SVC
 	t=time.time()
 	svc.fit(X_train, y_train)

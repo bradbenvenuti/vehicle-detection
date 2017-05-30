@@ -98,19 +98,19 @@ def find_cars(img, ystart, ystop, xstart, xstop, scale, svc, X_scaler, orient, p
 			ytop = ypos*pix_per_cell
 
 			# Extract the image patch
-			# subimg = cv2.resize(ctrans_tosearch[ytop:ytop+window, xleft:xleft+window], (64,64))
+			subimg = cv2.resize(ctrans_tosearch[ytop:ytop+window, xleft:xleft+window], (64,64))
 
 			# Get color features
-			# spatial_features = bin_spatial(subimg, size=spatial_size)
-			# hist_features = color_hist(subimg, nbins=hist_bins)
+			spatial_features = bin_spatial(subimg, size=spatial_size)
+			hist_features = color_hist(subimg, nbins=hist_bins)
 
 			# Scale features and make a prediction
-			# test_features = X_scaler.transform(np.hstack((spatial_features, hist_features, hog_features)).reshape(1, -1))
-			test_features = X_scaler.transform(hog_features).reshape(1, -1)
+			test_features = X_scaler.transform(np.hstack((spatial_features, hist_features, hog_features)).reshape(1, -1))
+			# test_features = X_scaler.transform(hog_features).reshape(1, -1)
 			#test_features = X_scaler.transform(np.hstack((shape_feat, hist_feat)).reshape(1, -1))
-			test_prediction = svc.predict(test_features)
+			# test_prediction = svc.predict(test_features)
 
-			if test_prediction == 1:
+			if (svc.decision_function(test_features) >= 0.5):
 				xbox_left = np.int(xleft*scale) + xstart
 				ytop_draw = np.int(ytop*scale)
 				win_draw = np.int(window*scale)

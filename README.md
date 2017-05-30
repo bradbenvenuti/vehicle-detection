@@ -76,7 +76,7 @@ Not Car
 I tried various combinations of parameters and found that the classifier performed best using the following parameters:
 
 - color_space = 'YUV'
-- orient = 11
+- orient = 16
 - pix_per_cell = 8
 - cell_per_block = 2
 - hog_channel = 'ALL'
@@ -85,7 +85,7 @@ I based the performance of the parameters on the accuracy of classifying images 
 
 ####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-I trained a linear SVM using HOG features only (using all color channels). I actually found that the classifier seemed to perform better without color features. The code related to the classifier can be found in './lib/classifier.py'.
+I trained a linear SVM using HOG features (using all color channels) as well as a histogram of color channels and a spatial function with size 16x16. The code related to the classifier can be found in './lib/classifier.py'. The code for extracting features can be found in './lib/features.py'.
 
 ###Sliding Window Search
 
@@ -95,7 +95,7 @@ I tried many different parameters for the sliding window search. I used the find
 
 I used smaller scales toward the middle of the image where cars would typically be seen at smaller sizes and I used larger scales toward the bottom of the image where cars would be larger. Also, the smaller the scale, the less area was needed to search horizontally, since the road narrows in the distance.
 
-I used 4 different scales (1, 1.5, 2, 3) and used a staggered variant of each scale to more accurately detect images. This staggered approach really seemed to help when trying to eliminate false positives.
+I used 4 different scales (1, 1.2, 2, 3) and used a staggered variant of each scale to more accurately detect images. This staggered approach really seemed to help when trying to eliminate false positives.
 
 Here are some examples of the windows/scales searched:
 
@@ -106,7 +106,7 @@ Here are some examples of the windows/scales searched:
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on 4 scales using YUV 3-channel HOG, which provided a nice result. I tried many different parameters for the feature extraction and HOG function, but found these parameters worked best with my pipeline. By using just HOG features and not other methods to extract features that helped with the speed of the feature extraction.
+Ultimately I searched on 4 scales using YUV 3-channel HOG, which provided a nice result. I tried many different parameters for the feature extraction and HOG function, but found these parameters worked best with my pipeline. In order to increase the performance of the classifier I used the decision_function to adjust the activation threshold. This helped to eliminate false positives. I also adjusted the "C" value to 0.001 to reduce overfitting.
 
 Here is an example images:
 
@@ -150,6 +150,6 @@ To further eliminate false positives, I stored the car detections from the previ
 
 I found it to be difficult to find the appropriate method to extract features for the classifier. I tried many different parameters for the HOG function and eventually seemed to find something that worked, but it does seem to give a lot of false positives.
 
-I found it to be a challenge to remove those false positives from the video. My method of saving X number of previous frames and using those in the heatmap seemed to help a lot, but it isn't fool proof. I think with more time I could better tune the classifier so that false positives are less common, but I could also try tuning the heatmaping threshold to better account for those false positives.
+I found it to be a challenge to remove those false positives from the video. My method of saving X number of previous frames and using those in the heatmap seemed to help a lot, but it isn't fool proof.
 
 I also found that the detection of white vehicles sometimes seemed problematic. I think it would help to find more data of white vehicles to use in the training set. It might also help to use different color maps and color features.

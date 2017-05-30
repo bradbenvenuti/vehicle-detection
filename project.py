@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import glob
 import time
+from collections import deque
 from sklearn.externals import joblib
 from lib.windows import *
 from lib.features import *
@@ -82,14 +83,14 @@ def prepare_data(color_space, spatial_size, hist_bins, orient, pix_per_cell,
 
 # Configuration
 color_space = 'YUV' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
-orient = 11
+orient = 16
 pix_per_cell = 8
 cell_per_block = 2
 hog_channel = 'ALL' # Can be 0, 1, 2, or "ALL"
 spatial_size = (16, 16)
 hist_bins = 32
-spatial_feat = False
-hist_feat = False
+spatial_feat = True
+hist_feat = True
 hog_feat = True
 
 # Setup classifier
@@ -99,7 +100,7 @@ classifier = fit_classifier(X_train, y_train)
 test_classifier(classifier, X_test, y_test)
 
 # Process Frames
-prev_boxes = [[], [], [], [], [], [], [], [], [], [], [], [], [], []];
+prev_boxes = deque(maxlen = 14)
 prev_labels = []
 frame_num = 0
 def process_image(img, single = False):
@@ -109,10 +110,10 @@ def process_image(img, single = False):
 
 		box_list = []
 
-		box_list += find_cars(img, 400, 464, 48, 1232, 1.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
+		box_list += find_cars(img, 384, 464, 48, 1232, 1.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
 		box_list += find_cars(img, 416, 480, 64, 1216, 1.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
-		box_list += find_cars(img, 416, 544, 16, 1264, 1.5, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
-		box_list += find_cars(img, 448, 592, 24, 1272, 1.5, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
+		box_list += find_cars(img, 384, 544, 16, 1264, 1.2, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
+		box_list += find_cars(img, 416, 592, 24, 1272, 1.2, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
 		box_list += find_cars(img, 400, 656, 0, 1280, 2, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
 		box_list += find_cars(img, 384, 640, 16, 1280, 2, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
 		box_list += find_cars(img, 400, 720, 0, 1280, 3, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space)
@@ -127,7 +128,6 @@ def process_image(img, single = False):
 				for boxes in prev_frame:
 					curr_boxes.append(boxes)
 
-		prev_boxes.pop(0)
 		prev_boxes.append(box_list)
 		# prev_boxes = list(box_list)
 		heatm = np.zeros_like(img[:,:,0]).astype(np.float)
@@ -135,7 +135,7 @@ def process_image(img, single = False):
 		if (single == True):
 			heat = apply_threshold(heatm, 1)
 		else:
-			heat = apply_threshold(heatm, 21)
+			heat = apply_threshold(heatm, 6)
 		# Visualize the heatmap when displaying
 		heatmap = np.clip(heat, 0, 255)
 		# Find final boxes from heatmap using label function
@@ -148,13 +148,15 @@ def process_image(img, single = False):
 	frame_num = frame_num + 1
 	return draw_img
 
-# # Run on test images
-# imgs = fetch_images('./output_images/frame*.png')
-# num = 0
-# for img in imgs:
-# 	draw_img = process_image(img, False)
-# 	mpimg.imsave('./output_images/box' + str(num) + '.png', draw_img)
-# 	num = num + 1
+# Run on test images
+imgs = fetch_images('./test_images/*.png')
+num = 0
+for img in imgs:
+	draw_img = process_image(img, True)
+	# draw_img = draw_grid(img, 368, 480, 32, 1248, 0.75, pix_per_cell, cell_per_block)
+	# draw_img = draw_grid(img, 400, 480, 40, 1248, 0.75, pix_per_cell, cell_per_block)
+	mpimg.imsave('./output_images/box' + str(num) + '.png', draw_img)
+	num = num + 1
 
 output = 'out.mp4'
 clip1 = VideoFileClip("project_video.mp4")
