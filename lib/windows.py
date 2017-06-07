@@ -52,7 +52,7 @@ def convert_color(image, cspace):
 
 	return feature_image
 
-def find_cars(img, ystart, ystop, xstart, xstop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space):
+def find_cars(img, ystart, ystop, xstart, xstop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, threshold=1.1):
 
 	draw_img = np.copy(img)
 
@@ -74,7 +74,7 @@ def find_cars(img, ystart, ystop, xstart, xstop, scale, svc, X_scaler, orient, p
 	# 64 was the orginal sampling rate, with 8 cells and 8 pix per cell
 	window = 64
 	nblocks_per_window = (window // pix_per_cell) - cell_per_block + 1
-	cells_per_step = 2  # Instead of overlap, define how many cells to step
+	cells_per_step = 1  # Instead of overlap, define how many cells to step
 	nxsteps = (nxblocks - nblocks_per_window) // cells_per_step
 	nysteps = (nyblocks - nblocks_per_window) // cells_per_step
 
@@ -90,7 +90,6 @@ def find_cars(img, ystart, ystop, xstart, xstop, scale, svc, X_scaler, orient, p
 			xpos = xb*cells_per_step
 			# Extract HOG for this patch
 			hog_feat1 = hog1[ypos:ypos+nblocks_per_window, xpos:xpos+nblocks_per_window].ravel()
-			# hog_features = hog1[ypos:ypos+nblocks_per_window, xpos:xpos+nblocks_per_window].ravel()
 			hog_feat2 = hog2[ypos:ypos+nblocks_per_window, xpos:xpos+nblocks_per_window].ravel()
 			hog_feat3 = hog3[ypos:ypos+nblocks_per_window, xpos:xpos+nblocks_per_window].ravel()
 			hog_features = np.hstack((hog_feat1, hog_feat2, hog_feat3))
@@ -105,12 +104,13 @@ def find_cars(img, ystart, ystop, xstart, xstop, scale, svc, X_scaler, orient, p
 			hist_features = color_hist(subimg, nbins=hist_bins)
 
 			# Scale features and make a prediction
+			# test_features = X_scaler.transform(np.hstack((spatial_features, hog_features)).reshape(1, -1))
 			test_features = X_scaler.transform(np.hstack((spatial_features, hist_features, hog_features)).reshape(1, -1))
 			# test_features = X_scaler.transform(hog_features).reshape(1, -1)
 			#test_features = X_scaler.transform(np.hstack((shape_feat, hist_feat)).reshape(1, -1))
 			# test_prediction = svc.predict(test_features)
 
-			if (svc.decision_function(test_features) >= 0.5):
+			if (svc.decision_function(test_features) >= threshold):
 				xbox_left = np.int(xleft*scale) + xstart
 				ytop_draw = np.int(ytop*scale)
 				win_draw = np.int(window*scale)
@@ -118,47 +118,3 @@ def find_cars(img, ystart, ystop, xstart, xstop, scale, svc, X_scaler, orient, p
 				# cv2.rectangle(draw_img,(xbox_left, ytop_draw+ystart),(xbox_left+win_draw,ytop_draw+win_draw+ystart),(0,0,255),6)
 
 	return box_list
-
-def draw_grid(img, ystart, ystop, xstart, xstop, scale, pix_per_cell, cell_per_block):
-
-	draw_img = np.copy(img)
-
-	img_tosearch = img[ystart:ystop,xstart:xstop,:]
-	if scale != 1:
-		imshape = img_tosearch.shape
-		img_tosearch = cv2.resize(img_tosearch, (np.int(imshape[1]/scale), np.int(imshape[0]/scale)))
-
-	ch1 = img_tosearch[:,:,0]
-	ch2 = img_tosearch[:,:,1]
-	ch3 = img_tosearch[:,:,2]
-
-	# Define blocks and steps as above
-	nxblocks = (ch1.shape[1] // pix_per_cell) + 1
-	nyblocks = (ch1.shape[0] // pix_per_cell) + 1
-
-	# 64 was the orginal sampling rate, with 8 cells and 8 pix per cell
-	window = 64
-	nblocks_per_window = (window // pix_per_cell) - cell_per_block + 1
-	cells_per_step = 2  # Instead of overlap, define how many cells to step
-	nxsteps = (nxblocks - nblocks_per_window) // cells_per_step
-	nysteps = (nyblocks - nblocks_per_window) // cells_per_step
-
-	color = (randint(0,255),randint(0,255),randint(0,255))
-	for xb in range(nxsteps):
-		for yb in range(nysteps):
-			ypos = yb*cells_per_step
-			xpos = xb*cells_per_step
-
-			xleft = xpos*pix_per_cell
-			ytop = ypos*pix_per_cell
-
-			# Extract the image patch
-			subimg = cv2.resize(img_tosearch[ytop:ytop+window, xleft:xleft+window], (64,64))
-
-			xbox_left = np.int(xleft*scale) + xstart
-			ytop_draw = np.int(ytop*scale)
-			win_draw = np.int(window*scale)
-			# box_list.append([[xbox_left, ytop_draw+ystart],[xbox_left+win_draw,ytop_draw+win_draw+ystart]])
-			cv2.rectangle(draw_img,(xbox_left, ytop_draw+ystart),(xbox_left+win_draw,ytop_draw+win_draw+ystart),color,2)
-
-	return draw_img
