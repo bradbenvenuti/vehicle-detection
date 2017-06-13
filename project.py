@@ -152,7 +152,7 @@ def process_video(img):
 	# num = num + 1
 
 prev_boxes.clear()
-output = 'out9.mp4'
+output = 'out.mp4'
 clip1 = VideoFileClip("project_video.mp4")
 clip = clip1.fl_image(process_video)
 %time clip.write_videofile(output, audio=False)
