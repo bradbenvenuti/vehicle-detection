@@ -106,16 +106,10 @@ def process_image(img, single = False):
 	global prev_boxes
 
 	box_list = []
-	box_list += find_cars(img, 384, 544, 48, 1232, 1.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	# box_list += find_cars(img, 416, 480, 64, 1216, 1.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	box_list += find_cars(img, 384, 592, 16, 1264, 1.4, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	# box_list += find_cars(img, 416, 592, 24, 1272, 1.4, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	# box_list += find_cars(img, 400, 656, 0, 1280, 1.8, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	box_list += find_cars(img, 384, 656, 16, 1280, 1.8, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	# box_list += find_cars(img, 400, 656, 0, 1280, 2.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	box_list += find_cars(img, 384, 720, 16, 1280, 2.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	# box_list += find_cars(img, 400, 720, 0, 1280, 3, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
-	# box_list += find_cars(img, 416, 720, 16, 1280, 3, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.1)
+	box_list += find_cars(img, 400, 592, 128, 1152, 0.75, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.0)
+	box_list += find_cars(img, 400, 592, 48, 1232, 1.0, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.0)
+	box_list += find_cars(img, 384, 656, 16, 1280, 1.4, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.0)
+	box_list += find_cars(img, 384, 656, 16, 1280, 1.8, classifier, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins, color_space, 1.0)
 	# for box in box_list:
 	# 	cv2.rectangle(draw_img,(box[0][0], box[0][1]),(box[1][0],box[1][1]),(0,0,255),6)
 
@@ -152,13 +146,13 @@ def process_video(img):
 # num = 0
 # for img in imgs:
 # 	draw_img = process_image(img, True)
-# 	# draw_img = draw_grid(img, 368, 480, 32, 1248, 0.75, pix_per_cell, cell_per_block)
+# 	draw_img = draw_grid(img, 384, 544, 128, 1152, 0.75, pix_per_cell, cell_per_block)
 # 	# draw_img = draw_grid(img, 400, 480, 40, 1248, 0.75, pix_per_cell, cell_per_block)
-# 	mpimg.imsave('./output_images/test' + str(num) + '.png', draw_img)
-# 	num = num + 1
+# 	mpimg.imsave('./output_images/test9' + str(num) + '.png', draw_img)
+	# num = num + 1
 
 prev_boxes.clear()
-output = 'out4.mp4'
+output = 'out9.mp4'
 clip1 = VideoFileClip("project_video.mp4")
 clip = clip1.fl_image(process_video)
 %time clip.write_videofile(output, audio=False)
