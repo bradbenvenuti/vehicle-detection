@@ -15,6 +15,50 @@ from lib.features import *
 from lib.classifier import *
 from moviepy.editor import VideoFileClip
 
+def draw_grid(img, ystart, ystop, xstart, xstop, scale, pix_per_cell, cell_per_block):
+
+	draw_img = np.copy(img)
+
+	img_tosearch = img[ystart:ystop,xstart:xstop,:]
+	if scale != 1:
+		imshape = img_tosearch.shape
+		img_tosearch = cv2.resize(img_tosearch, (np.int(imshape[1]/scale), np.int(imshape[0]/scale)))
+
+	ch1 = img_tosearch[:,:,0]
+	ch2 = img_tosearch[:,:,1]
+	ch3 = img_tosearch[:,:,2]
+
+	# Define blocks and steps as above
+	nxblocks = (ch1.shape[1] // pix_per_cell) + 1
+	nyblocks = (ch1.shape[0] // pix_per_cell) + 1
+
+	# 64 was the orginal sampling rate, with 8 cells and 8 pix per cell
+	window = 64
+	nblocks_per_window = (window // pix_per_cell) - cell_per_block + 1
+	cells_per_step = 2  # Instead of overlap, define how many cells to step
+	nxsteps = (nxblocks - nblocks_per_window) // cells_per_step
+	nysteps = (nyblocks - nblocks_per_window) // cells_per_step
+
+	color = (randint(0,255),randint(0,255),randint(0,255))
+	for xb in range(nxsteps):
+		for yb in range(nysteps):
+			ypos = yb*cells_per_step
+			xpos = xb*cells_per_step
+
+			xleft = xpos*pix_per_cell
+			ytop = ypos*pix_per_cell
+
+			# Extract the image patch
+			subimg = cv2.resize(img_tosearch[ytop:ytop+window, xleft:xleft+window], (64,64))
+
+			xbox_left = np.int(xleft*scale) + xstart
+			ytop_draw = np.int(ytop*scale)
+			win_draw = np.int(window*scale)
+			# box_list.append([[xbox_left, ytop_draw+ystart],[xbox_left+win_draw,ytop_draw+win_draw+ystart]])
+			cv2.rectangle(draw_img,(xbox_left, ytop_draw+ystart),(xbox_left+win_draw,ytop_draw+win_draw+ystart),color,2)
+
+	return draw_img
+
 def fetch_images(path):
 	imgs = []
 	for file in glob.glob(path):
@@ -141,15 +185,20 @@ def process_video(img):
 	img = process_image(img)
 	return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-# Run on test images
-# imgs = fetch_images('./test_images/*.png')
+# # Run on test images
+# imgs = fetch_images('./test_images/test1.png')
 # num = 0
 # for img in imgs:
 # 	draw_img = process_image(img, True)
-# 	draw_img = draw_grid(img, 384, 544, 128, 1152, 0.75, pix_per_cell, cell_per_block)
-# 	# draw_img = draw_grid(img, 400, 480, 40, 1248, 0.75, pix_per_cell, cell_per_block)
-# 	mpimg.imsave('./output_images/test9' + str(num) + '.png', draw_img)
-	# num = num + 1
+# 	draw_img = draw_grid(img, 400, 592, 128, 1152, 0.75, pix_per_cell, cell_per_block)
+# 	mpimg.imsave('./output_images/grid0-1.png', draw_img)
+# 	draw_img = draw_grid(img, 400, 592, 48, 1232, 1.0, pix_per_cell, cell_per_block)
+# 	mpimg.imsave('./output_images/grid0-2.png', draw_img)
+# 	draw_img = draw_grid(img, 384, 656, 16, 1280, 1.4, pix_per_cell, cell_per_block)
+# 	mpimg.imsave('./output_images/grid0-3.png', draw_img)
+# 	draw_img = draw_grid(img, 384, 656, 16, 1280, 1.8, pix_per_cell, cell_per_block)
+# 	mpimg.imsave('./output_images/grid0-4.png', draw_img)
+# 	num = num + 1
 
 prev_boxes.clear()
 output = 'out.mp4'

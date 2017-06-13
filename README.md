@@ -75,11 +75,13 @@ Not Car
 
 I tried various combinations of parameters and found that the classifier performed best using the following parameters:
 
-- color_space = 'YUV'
-- orient = 16
+- color_space = 'LUV'
+- orient = 11
 - pix_per_cell = 8
 - cell_per_block = 2
 - hog_channel = 'ALL'
+- spatial_size = (16, 16)
+- hist_bins = 32
 
 I based the performance of the parameters on the accuracy of classifying images in the test set, which was about 98 percent. I also continually checked against the test images and video.
 
@@ -95,7 +97,7 @@ I tried many different parameters for the sliding window search. I used the find
 
 I used smaller scales toward the middle of the image where cars would typically be seen at smaller sizes and I used larger scales toward the bottom of the image where cars would be larger. Also, the smaller the scale, the less area was needed to search horizontally, since the road narrows in the distance.
 
-I used 4 different scales (1, 1.2, 2, 3) and used a staggered variant of each scale to more accurately detect images. This staggered approach really seemed to help when trying to eliminate false positives.
+I used 4 different scales (0.75, 1, 1.4, 1.8) which really seemed to help when trying to eliminate false positives.
 
 Here are some examples of the windows/scales searched:
 
@@ -108,7 +110,7 @@ Here are some examples of the windows/scales searched:
 
 Ultimately I searched on 4 scales using YUV 3-channel HOG, which provided a nice result. I tried many different parameters for the feature extraction and HOG function, but found these parameters worked best with my pipeline. In order to increase the performance of the classifier I used the decision_function to adjust the activation threshold. This helped to eliminate false positives. I also adjusted the "C" value to 0.001 to reduce overfitting.
 
-Here is an example images:
+Here is an example image:
 
 ![alt text][image9]
 
@@ -124,7 +126,7 @@ Here's a [link to my video result](./out.mp4)
 
 I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.
 
-To further eliminate false positives, I stored the car detections from the previous 14 frames. Then for each new frame I used the current & previous frame data to construct the heatmap. That way I could use a greater threshold for the heatmap because if a previous detection was a false positive, it is typically less likely for that detection to occur in multiple frames.
+To further eliminate false positives, I stored the car detections from the previous 9 frames. Then for each new frame I used the current & previous frame data to construct the heatmap. That way I could use a greater threshold for the heatmap because if a previous detection was a false positive, it is typically less likely for that detection to occur in multiple frames.
 
 ### Here are six frames and their corresponding heatmaps:
 
@@ -148,7 +150,7 @@ To further eliminate false positives, I stored the car detections from the previ
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-I found it to be difficult to find the appropriate method to extract features for the classifier. I tried many different parameters for the HOG function and eventually seemed to find something that worked, but it does seem to give a lot of false positives.
+I found it to be difficult to find the appropriate method to extract features for the classifier. I tried many different parameters for the HOG function and eventually seemed to find something that worked, but it did seem to give a lot of false positives. I then noticed that I was not converting the frames of my video to BGR like the pipeline expected. Once I did this conversion my results seemed to get much better.
 
 I found it to be a challenge to remove those false positives from the video. My method of saving X number of previous frames and using those in the heatmap seemed to help a lot, but it isn't fool proof.
 
